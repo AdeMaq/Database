@@ -1,0 +1,181 @@
+Task 1:
+Display the manager name, manager number, and salary of the lowest paid employee for the manager. Exclude anyone whose manager is not known. Sort the output in descending order of the salary.
+
+sql
+Copy code
+SELECT 
+    m.ename AS manager_name,
+    e.mgr AS manager_number,
+    MIN(e.sal) AS lowest_salary
+FROM 
+    emp e
+JOIN 
+    emp m ON e.mgr = m.empno
+WHERE 
+    e.mgr IS NOT NULL
+GROUP BY 
+    m.ename, e.mgr
+ORDER BY 
+    lowest_salary DESC;
+Task 2:
+Retrieve a list of employees who have the same salary grade as their managers.
+
+sql
+Copy code
+SELECT 
+    e.ename AS employee_name,
+    m.ename AS manager_name,
+    s.grade AS salary_grade
+FROM 
+    emp e
+JOIN 
+    emp m ON e.mgr = m.empno
+JOIN 
+    salgrade s ON e.sal BETWEEN s.losal AND s.hisal
+JOIN 
+    salgrade ms ON m.sal BETWEEN ms.losal AND ms.hisal
+WHERE 
+    s.grade = ms.grade;
+Task 3:
+List employee names (ENAMES) and the count of employees working under each manager.
+
+sql
+Copy code
+SELECT 
+    m.ename AS manager_name,
+    COUNT(e.empno) AS employee_count
+FROM 
+    emp e
+JOIN 
+    emp m ON e.mgr = m.empno
+GROUP BY 
+    m.ename;
+Task 4:
+List empno, ename, job, sal, deptno, dname, rank, tax, and sal-tax.
+
+sql
+Copy code
+WITH RankedEmp AS (
+    SELECT 
+        e.empno,
+        e.ename,
+        e.job,
+        e.sal,
+        e.deptno,
+        d.dname,
+        ROW_NUMBER() OVER (ORDER BY e.sal DESC) AS rank,
+        CASE 
+            WHEN s.grade IN (1, 2, 3) THEN 0.1 * e.sal 
+            WHEN s.grade IN (4, 5) THEN 0.12 * e.sal 
+        END AS tax
+    FROM 
+        emp e
+    JOIN 
+        dept d ON e.deptno = d.deptno
+    JOIN 
+        salgrade s ON e.sal BETWEEN s.losal AND s.hisal
+)
+SELECT 
+    empno,
+    ename,
+    job,
+    sal,
+    deptno,
+    dname,
+    rank,
+    tax,
+    sal - tax AS sal_after_tax
+FROM 
+    RankedEmp;
+Task 5:
+List all employees along with their managers, managers' salary, and their managers' salary grades.
+
+sql
+Copy code
+SELECT 
+    e.ename AS employee_name,
+    m.ename AS manager_name,
+    m.sal AS manager_salary,
+    s.grade AS manager_salary_grade
+FROM 
+    emp e
+JOIN 
+    emp m ON e.mgr = m.empno
+JOIN 
+    salgrade s ON m.sal BETWEEN s.losal AND s.hisal;
+Task 6:
+List all employees, their managers, managers' department, number of employees in the manager's department, and the average grades of all employees in that department.
+
+sql
+Copy code
+SELECT 
+    e.ename AS employee_name,
+    m.ename AS manager_name,
+    d.dname AS manager_department,
+    COUNT(*) OVER (PARTITION BY d.deptno) AS num_employees_in_dept,
+    AVG(s.grade) OVER (PARTITION BY d.deptno) AS avg_grade_in_dept
+FROM 
+    emp e
+JOIN 
+    emp m ON e.mgr = m.empno
+JOIN 
+    dept d ON m.deptno = d.deptno
+JOIN 
+    salgrade s ON e.sal BETWEEN s.losal AND s.hisal;
+Task 7:
+List all students who match the first name and middle name of any other student from the table.
+
+Since this is based on emp data, we’ll use a placeholder for student data.
+
+sql
+Copy code
+SELECT 
+    s1.student_id,
+    s1.first_name,
+    s1.middle_name
+FROM 
+    students s1
+JOIN 
+    students s2 ON s1.first_name = s2.first_name AND s1.middle_name = s2.middle_name
+WHERE 
+    s1.student_id <> s2.student_id;
+Task 8:
+Combine the names of students and employees such that we get the first and last name from the employee and the middle name from the student table.
+
+sql
+Copy code
+SELECT 
+    e.first_name || ' ' || s.middle_name || ' ' || e.last_name AS combined_name
+FROM 
+    students s
+JOIN 
+    employees e ON e.first_name = s.first_name; 
+Task 9:
+List all employees who earn Grade 2 only by the commission they earn.
+
+sql
+Copy code
+SELECT 
+    e.ename AS employee_name,
+    e.sal,
+    e.comm,
+    s.grade
+FROM 
+    emp e
+JOIN 
+    salgrade s ON e.comm BETWEEN s.losal AND s.hisal
+WHERE 
+    s.grade = 2;
+Task 10:
+List employees who earn 2000 more than the average salary in their department.
+
+sql
+Copy code
+SELECT 
+    e.ename AS employee_name,
+    e.sal,
+    AVG(e.sal) OVER (PARTITION BY e.deptno) AS avg_salary_in_dept
+FROM 
+    emp e
+WHERE 
+    e.sal > (SELECT AVG(e2.sal) + 2000 FROM emp e2 WHERE e2.deptno = e.deptno);

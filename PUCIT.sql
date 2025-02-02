@@ -1,0 +1,13 @@
+Drop table PUCIT;
+create table PUCIT (Std_name varchar2(1000));
+insert into PUCIT Values('Muhammad Usman Khan');
+insert into PUCIT Values('Hafiz Ghulam Murtaza');
+insert into PUCIT Values('Hafiz Mohsin Yaseen');
+insert into PUCIT Values('Malik Ibrar Hussain');
+insert into PUCIT Values('Ali Haider Khan');
+insert into PUCIT Values('Khawaja Ali Quli');
+insert into PUCIT Values('Khan Buhadur Khan');
+insert into PUCIT Values('Abu Baker Siddique');
+insert into PUCIT Values('Ch. Ejaz Ashraf');
+insert into PUCIT Values('Muhammad Hassan Khan');
+insert into PUCIT Values('Ahmed Sadiq Moosa Nasir');
